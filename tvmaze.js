@@ -23,21 +23,20 @@ async function getShowsByTerm(term) {
   const showsList = [];
 
   for (const show of jsonResponse) {
-    // console.log(show.show.image.original, typeof show.show.image.original);
-    const imgURL = (show.show.image.original) // Check if image exists as another test
+    // const imgURL = (show.show.image.original) // Check if image exists as another test
     // ? show.show.image.original
     // : PLACEHOLDER_IMAGE_LINK;
 
-    const curShow = `{
-        id: "${show.show.id}",
-        name: "${show.show.name}",
-        summary: "${show.show.summary}",
-        image: "${show.show.image.original}",
-      }`
+    const curShow = {
+      id: show.show.id,
+      name: show.show.name,
+      summary: show.show.summary,
+      image: show.show.image.original || PLACEHOLDER_IMAGE_LINK,
+    };
+    console.log("curshow=",curShow);
+    showsList.push(curShow);
 
-      $showsList.append(curShow);
   }
-
   return showsList;
 }
 
@@ -50,16 +49,14 @@ async function getShowsByTerm(term) {
 function displayShows(shows) {
   $showsList.empty();
 
-  for (const show in shows) {
-
+  for (const show of shows) {
+      console.log(show);
     const $newIMG = `<img src=${show.image}></img>`;
+
     $showsList.append($newIMG);
-
-
-    $showsList.append(show);
   }
 
-  }
+}
 
 
 /** Handle search form submission: get shows from API and display.
