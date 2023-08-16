@@ -4,6 +4,7 @@ const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 const BASE_SEARCH = 'http://api.tvmaze.com/search/shows';
+const PLACEHOLDER_IMAGE_LINK = 'https://store-images.s-microsoft.com/image/apps.65316.13510798887490672.6e1ebb25-96c8-4504-b714-1f7cbca3c5ad.f9514a23-1eb8-4916-a18e-99b1a9817d15?mode=scale&q=90&h=300&w=300';
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -15,28 +16,29 @@ const BASE_SEARCH = 'http://api.tvmaze.com/search/shows';
 async function getShowsByTerm(term) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
 
-  let response = await fetch(`${BASE_SEARCH}?q=${term}`);
+  // Note: Want to return earlier markup here.
 
-  return response.json();
+  const response = await fetch(`${BASE_SEARCH}?q=${term}`);
+  const jsonResponse = await response.json();
+  const showsList = [];
 
-  // return [
-  //   {
-  //     id: 1767,
-  //     name: "The Bletchley Circle",
-  //     summary:
-  //       `<p><b>The Bletchley Circle</b> follows the journey of four ordinary
-  //          women with extraordinary skills that helped to end World War II.</p>
-  //        <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their
-  //          normal lives, modestly setting aside the part they played in
-  //          producing crucial intelligence, which helped the Allies to victory
-  //          and shortened the war. When Susan discovers a hidden code behind an
-  //          unsolved murder she is met by skepticism from the police. She
-  //          quickly realises she can only begin to crack the murders and bring
-  //          the culprit to justice with her former friends.</p>`,
-  //     image:
-  //         "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
-  //   }
-  // ]
+  for (const show of jsonResponse) {
+    // console.log(show.show.image.original, typeof show.show.image.original);
+    const imgURL = (show.show.image.original) // Check if image exists as another test
+    // ? show.show.image.original
+    // : PLACEHOLDER_IMAGE_LINK;
+
+    const curShow = `{
+        id: "${show.show.id}",
+        name: "${show.show.name}",
+        summary: "${show.show.summary}",
+        image: "${show.show.image.original}",
+      }`
+
+      $showsList.append(curShow);
+  }
+
+  return showsList;
 }
 
 
@@ -48,28 +50,16 @@ async function getShowsByTerm(term) {
 function displayShows(shows) {
   $showsList.empty();
 
-  for (const show of shows) {
-    const $show = $(`
-        <div data-show-id="${show.id}" class="Show col-md-12 col-lg-6 mb-4">
-         <div class="media">
-           <img
-              src="${show.url}"
-              alt="${show.name}"
-              class="w-25 me-3">
-           <div class="media-body">
-             <h5 class="text-primary">${show.name}</h5>
-             <div><small>${show.summary}</small></div>
-             <button class="btn btn-outline-light btn-sm Show-getEpisodes">
-               Episodes
-             </button>
-           </div>
-         </div>
-       </div>
-      `);
+  for (const show in shows) {
 
-    $showsList.append($show);
+    const $newIMG = `<img src=${show.image}></img>`;
+    $showsList.append($newIMG);
+
+
+    $showsList.append(show);
   }
-}
+
+  }
 
 
 /** Handle search form submission: get shows from API and display.
